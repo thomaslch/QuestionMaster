@@ -1,0 +1,76 @@
+version: '3'
+services:
+
+  #PHP Service
+  app:
+    image: chonhou/todo_auth:nocpy
+    container_name: qm-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./QuestionMaster/:/var/www
+      - ./docker_config/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - qm-network
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: qm-webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./QuestionMaster/:/var/www
+      - ./docker_config/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - qm-network
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: qm-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3360:3306"
+    environment:
+      MYSQL_DATABASE: qm
+      MYSQL_ROOT_PASSWORD: noopasswordhahalol
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - qm_dbdata:/var/lib/mysql/
+      - ./docker_config/mysql/my.cnf:/etc/mysql/my.cnf
+      # - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - qm-network
+
+  redis:
+    image: redis
+    container_name: qm-redis
+    restart: unless-stopped
+    ports: 
+      - "6379:6379"
+    volumes:
+      - qm_redis:/data
+    networks:
+      - qm-network
+
+#Docker Networks
+networks:
+  qm-network:
+    driver: bridge
+#Volumes
+volumes:
+  qm_dbdata:
+    driver: local
+  qm_redis:
+    driver: local
