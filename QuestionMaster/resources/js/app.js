@@ -13,4 +13,6 @@ require('./bootstrap');
  */
 
 require('./components/Example');
-require('./components/AdminView');
+require('./components/admin/AdminView');
+
+require('./components/user/UserView');

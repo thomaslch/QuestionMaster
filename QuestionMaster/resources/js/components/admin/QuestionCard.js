@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 
-import GLOBALS from '../api/global';
+import GLOBALS from '../../api/global';
 
 const QuestionCard = (key) => {
   const [questionInput, setQuestionInput] = useState({});

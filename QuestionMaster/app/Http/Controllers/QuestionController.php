@@ -32,6 +32,16 @@ class QuestionController extends Controller
 
         $question->save();
 
-        return response()->json($question, 201);
+        // broadcast question
+        broadcast(new \App\Events\QuestionCreated($question, false));
+
+        response()->json($question, 201);
+
+        sleep(15);
+
+        // broadcast question and ans
+        broadcast(new \App\Events\QuestionCreated($question, true));
+
+        return;
     }
 }

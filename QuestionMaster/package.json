@@ -12,7 +12,7 @@
     "devDependencies": {
         "@babel/preset-react": "^7.0.0",
         "axios": "^0.19",
-        "bootstrap": "^4.1.0",
+        "bootstrap": "^4.5.0",
         "cross-env": "^5.1",
         "jquery": "^3.2",
         "laravel-mix": "^4.0.7",
@@ -23,5 +23,14 @@
         "resolve-url-loader": "^2.3.1",
         "sass": "^1.15.2",
         "sass-loader": "^7.1.0"
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "http": "^0.0.1-security",
+        "ioredis": "^4.17.3",
+        "laravel-echo": "^1.8.0",
+        "react-bootstrap": "^1.0.1",
+        "socket.io": "^2.3.0",
+        "socket.io-client": "^2.3.0"
     }
 }
