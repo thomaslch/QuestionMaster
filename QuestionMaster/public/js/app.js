@@ -9056,6 +9056,732 @@ module.exports = function(a, b){
 
 /***/ }),
 
+/***/ "./node_modules/debug/node_modules/ms/index.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/debug/node_modules/ms/index.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Helpers.
+ */
+
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var w = d * 7;
+var y = d * 365.25;
+
+/**
+ * Parse or format the given `val`.
+ *
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} [options]
+ * @throws {Error} throw an error if val is not a non-empty string or a number
+ * @return {String|Number}
+ * @api public
+ */
+
+module.exports = function(val, options) {
+  options = options || {};
+  var type = typeof val;
+  if (type === 'string' && val.length > 0) {
+    return parse(val);
+  } else if (type === 'number' && isFinite(val)) {
+    return options.long ? fmtLong(val) : fmtShort(val);
+  }
+  throw new Error(
+    'val is not a non-empty string or a valid number. val=' +
+      JSON.stringify(val)
+  );
+};
+
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
+
+function parse(str) {
+  str = String(str);
+  if (str.length > 100) {
+    return;
+  }
+  var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
+    str
+  );
+  if (!match) {
+    return;
+  }
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'yrs':
+    case 'yr':
+    case 'y':
+      return n * y;
+    case 'weeks':
+    case 'week':
+    case 'w':
+      return n * w;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'hrs':
+    case 'hr':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'mins':
+    case 'min':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 'secs':
+    case 'sec':
+    case 's':
+      return n * s;
+    case 'milliseconds':
+    case 'millisecond':
+    case 'msecs':
+    case 'msec':
+    case 'ms':
+      return n;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Short format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function fmtShort(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return Math.round(ms / d) + 'd';
+  }
+  if (msAbs >= h) {
+    return Math.round(ms / h) + 'h';
+  }
+  if (msAbs >= m) {
+    return Math.round(ms / m) + 'm';
+  }
+  if (msAbs >= s) {
+    return Math.round(ms / s) + 's';
+  }
+  return ms + 'ms';
+}
+
+/**
+ * Long format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function fmtLong(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return plural(ms, msAbs, d, 'day');
+  }
+  if (msAbs >= h) {
+    return plural(ms, msAbs, h, 'hour');
+  }
+  if (msAbs >= m) {
+    return plural(ms, msAbs, m, 'minute');
+  }
+  if (msAbs >= s) {
+    return plural(ms, msAbs, s, 'second');
+  }
+  return ms + ' ms';
+}
+
+/**
+ * Pluralization helper.
+ */
+
+function plural(ms, msAbs, n, name) {
+  var isPlural = msAbs >= n * 1.5;
+  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/debug/src/browser.js":
+/*!*******************************************!*\
+  !*** ./node_modules/debug/src/browser.js ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(process) {/* eslint-env browser */
+
+/**
+ * This is the web browser implementation of `debug()`.
+ */
+
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+exports.storage = localstorage();
+
+/**
+ * Colors.
+ */
+
+exports.colors = [
+	'#0000CC',
+	'#0000FF',
+	'#0033CC',
+	'#0033FF',
+	'#0066CC',
+	'#0066FF',
+	'#0099CC',
+	'#0099FF',
+	'#00CC00',
+	'#00CC33',
+	'#00CC66',
+	'#00CC99',
+	'#00CCCC',
+	'#00CCFF',
+	'#3300CC',
+	'#3300FF',
+	'#3333CC',
+	'#3333FF',
+	'#3366CC',
+	'#3366FF',
+	'#3399CC',
+	'#3399FF',
+	'#33CC00',
+	'#33CC33',
+	'#33CC66',
+	'#33CC99',
+	'#33CCCC',
+	'#33CCFF',
+	'#6600CC',
+	'#6600FF',
+	'#6633CC',
+	'#6633FF',
+	'#66CC00',
+	'#66CC33',
+	'#9900CC',
+	'#9900FF',
+	'#9933CC',
+	'#9933FF',
+	'#99CC00',
+	'#99CC33',
+	'#CC0000',
+	'#CC0033',
+	'#CC0066',
+	'#CC0099',
+	'#CC00CC',
+	'#CC00FF',
+	'#CC3300',
+	'#CC3333',
+	'#CC3366',
+	'#CC3399',
+	'#CC33CC',
+	'#CC33FF',
+	'#CC6600',
+	'#CC6633',
+	'#CC9900',
+	'#CC9933',
+	'#CCCC00',
+	'#CCCC33',
+	'#FF0000',
+	'#FF0033',
+	'#FF0066',
+	'#FF0099',
+	'#FF00CC',
+	'#FF00FF',
+	'#FF3300',
+	'#FF3333',
+	'#FF3366',
+	'#FF3399',
+	'#FF33CC',
+	'#FF33FF',
+	'#FF6600',
+	'#FF6633',
+	'#FF9900',
+	'#FF9933',
+	'#FFCC00',
+	'#FFCC33'
+];
+
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+
+// eslint-disable-next-line complexity
+function useColors() {
+	// NB: In an Electron preload script, document will be defined but not fully
+	// initialized. Since we know we're in Chrome, we'll just detect this case
+	// explicitly
+	if (typeof window !== 'undefined' && window.process && (window.process.type === 'renderer' || window.process.__nwjs)) {
+		return true;
+	}
+
+	// Internet Explorer and Edge do not support colors.
+	if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
+		return false;
+	}
+
+	// Is webkit? http://stackoverflow.com/a/16459606/376773
+	// document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+	return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
+		// Is firebug? http://stackoverflow.com/a/398120/376773
+		(typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
+		// Is firefox >= v31?
+		// https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+		(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
+		// Double check webkit in userAgent just in case we are in a worker
+		(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
+}
+
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs(args) {
+	args[0] = (this.useColors ? '%c' : '') +
+		this.namespace +
+		(this.useColors ? ' %c' : ' ') +
+		args[0] +
+		(this.useColors ? '%c ' : ' ') +
+		'+' + module.exports.humanize(this.diff);
+
+	if (!this.useColors) {
+		return;
+	}
+
+	const c = 'color: ' + this.color;
+	args.splice(1, 0, c, 'color: inherit');
+
+	// The final "%c" is somewhat tricky, because there could be other
+	// arguments passed either before or after the %c, so we need to
+	// figure out the correct index to insert the CSS into
+	let index = 0;
+	let lastC = 0;
+	args[0].replace(/%[a-zA-Z%]/g, match => {
+		if (match === '%%') {
+			return;
+		}
+		index++;
+		if (match === '%c') {
+			// We only are interested in the *last* %c
+			// (the user may have provided their own)
+			lastC = index;
+		}
+	});
+
+	args.splice(lastC, 0, c);
+}
+
+/**
+ * Invokes `console.log()` when available.
+ * No-op when `console.log` is not a "function".
+ *
+ * @api public
+ */
+function log(...args) {
+	// This hackery is required for IE8/9, where
+	// the `console.log` function doesn't have 'apply'
+	return typeof console === 'object' &&
+		console.log &&
+		console.log(...args);
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+function save(namespaces) {
+	try {
+		if (namespaces) {
+			exports.storage.setItem('debug', namespaces);
+		} else {
+			exports.storage.removeItem('debug');
+		}
+	} catch (error) {
+		// Swallow
+		// XXX (@Qix-) should we be logging these?
+	}
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+function load() {
+	let r;
+	try {
+		r = exports.storage.getItem('debug');
+	} catch (error) {
+		// Swallow
+		// XXX (@Qix-) should we be logging these?
+	}
+
+	// If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+	if (!r && typeof process !== 'undefined' && 'env' in process) {
+		r = process.env.DEBUG;
+	}
+
+	return r;
+}
+
+/**
+ * Localstorage attempts to return the localstorage.
+ *
+ * This is necessary because safari throws
+ * when a user disables cookies/localstorage
+ * and you attempt to access it.
+ *
+ * @return {LocalStorage}
+ * @api private
+ */
+
+function localstorage() {
+	try {
+		// TVMLKit (Apple TV JS Runtime) does not have a window object, just localStorage in the global context
+		// The Browser also has localStorage in the global context.
+		return localStorage;
+	} catch (error) {
+		// Swallow
+		// XXX (@Qix-) should we be logging these?
+	}
+}
+
+module.exports = __webpack_require__(/*! ./common */ "./node_modules/debug/src/common.js")(exports);
+
+const {formatters} = module.exports;
+
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
+
+formatters.j = function (v) {
+	try {
+		return JSON.stringify(v);
+	} catch (error) {
+		return '[UnexpectedJSONParseError]: ' + error.message;
+	}
+};
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../process/browser.js */ "./node_modules/process/browser.js")))
+
+/***/ }),
+
+/***/ "./node_modules/debug/src/common.js":
+/*!******************************************!*\
+  !*** ./node_modules/debug/src/common.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/**
+ * This is the common logic for both the Node.js and web browser
+ * implementations of `debug()`.
+ */
+
+function setup(env) {
+	createDebug.debug = createDebug;
+	createDebug.default = createDebug;
+	createDebug.coerce = coerce;
+	createDebug.disable = disable;
+	createDebug.enable = enable;
+	createDebug.enabled = enabled;
+	createDebug.humanize = __webpack_require__(/*! ms */ "./node_modules/debug/node_modules/ms/index.js");
+
+	Object.keys(env).forEach(key => {
+		createDebug[key] = env[key];
+	});
+
+	/**
+	* Active `debug` instances.
+	*/
+	createDebug.instances = [];
+
+	/**
+	* The currently active debug mode names, and names to skip.
+	*/
+
+	createDebug.names = [];
+	createDebug.skips = [];
+
+	/**
+	* Map of special "%n" handling functions, for the debug "format" argument.
+	*
+	* Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
+	*/
+	createDebug.formatters = {};
+
+	/**
+	* Selects a color for a debug namespace
+	* @param {String} namespace The namespace string for the for the debug instance to be colored
+	* @return {Number|String} An ANSI color code for the given namespace
+	* @api private
+	*/
+	function selectColor(namespace) {
+		let hash = 0;
+
+		for (let i = 0; i < namespace.length; i++) {
+			hash = ((hash << 5) - hash) + namespace.charCodeAt(i);
+			hash |= 0; // Convert to 32bit integer
+		}
+
+		return createDebug.colors[Math.abs(hash) % createDebug.colors.length];
+	}
+	createDebug.selectColor = selectColor;
+
+	/**
+	* Create a debugger with the given `namespace`.
+	*
+	* @param {String} namespace
+	* @return {Function}
+	* @api public
+	*/
+	function createDebug(namespace) {
+		let prevTime;
+
+		function debug(...args) {
+			// Disabled?
+			if (!debug.enabled) {
+				return;
+			}
+
+			const self = debug;
+
+			// Set `diff` timestamp
+			const curr = Number(new Date());
+			const ms = curr - (prevTime || curr);
+			self.diff = ms;
+			self.prev = prevTime;
+			self.curr = curr;
+			prevTime = curr;
+
+			args[0] = createDebug.coerce(args[0]);
+
+			if (typeof args[0] !== 'string') {
+				// Anything else let's inspect with %O
+				args.unshift('%O');
+			}
+
+			// Apply any `formatters` transformations
+			let index = 0;
+			args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
+				// If we encounter an escaped % then don't increase the array index
+				if (match === '%%') {
+					return match;
+				}
+				index++;
+				const formatter = createDebug.formatters[format];
+				if (typeof formatter === 'function') {
+					const val = args[index];
+					match = formatter.call(self, val);
+
+					// Now we need to remove `args[index]` since it's inlined in the `format`
+					args.splice(index, 1);
+					index--;
+				}
+				return match;
+			});
+
+			// Apply env-specific formatting (colors, etc.)
+			createDebug.formatArgs.call(self, args);
+
+			const logFn = self.log || createDebug.log;
+			logFn.apply(self, args);
+		}
+
+		debug.namespace = namespace;
+		debug.enabled = createDebug.enabled(namespace);
+		debug.useColors = createDebug.useColors();
+		debug.color = selectColor(namespace);
+		debug.destroy = destroy;
+		debug.extend = extend;
+		// Debug.formatArgs = formatArgs;
+		// debug.rawLog = rawLog;
+
+		// env-specific initialization logic for debug instances
+		if (typeof createDebug.init === 'function') {
+			createDebug.init(debug);
+		}
+
+		createDebug.instances.push(debug);
+
+		return debug;
+	}
+
+	function destroy() {
+		const index = createDebug.instances.indexOf(this);
+		if (index !== -1) {
+			createDebug.instances.splice(index, 1);
+			return true;
+		}
+		return false;
+	}
+
+	function extend(namespace, delimiter) {
+		const newDebug = createDebug(this.namespace + (typeof delimiter === 'undefined' ? ':' : delimiter) + namespace);
+		newDebug.log = this.log;
+		return newDebug;
+	}
+
+	/**
+	* Enables a debug mode by namespaces. This can include modes
+	* separated by a colon and wildcards.
+	*
+	* @param {String} namespaces
+	* @api public
+	*/
+	function enable(namespaces) {
+		createDebug.save(namespaces);
+
+		createDebug.names = [];
+		createDebug.skips = [];
+
+		let i;
+		const split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
+		const len = split.length;
+
+		for (i = 0; i < len; i++) {
+			if (!split[i]) {
+				// ignore empty strings
+				continue;
+			}
+
+			namespaces = split[i].replace(/\*/g, '.*?');
+
+			if (namespaces[0] === '-') {
+				createDebug.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+			} else {
+				createDebug.names.push(new RegExp('^' + namespaces + '$'));
+			}
+		}
+
+		for (i = 0; i < createDebug.instances.length; i++) {
+			const instance = createDebug.instances[i];
+			instance.enabled = createDebug.enabled(instance.namespace);
+		}
+	}
+
+	/**
+	* Disable debug output.
+	*
+	* @return {String} namespaces
+	* @api public
+	*/
+	function disable() {
+		const namespaces = [
+			...createDebug.names.map(toNamespace),
+			...createDebug.skips.map(toNamespace).map(namespace => '-' + namespace)
+		].join(',');
+		createDebug.enable('');
+		return namespaces;
+	}
+
+	/**
+	* Returns true if the given mode name is enabled, false otherwise.
+	*
+	* @param {String} name
+	* @return {Boolean}
+	* @api public
+	*/
+	function enabled(name) {
+		if (name[name.length - 1] === '*') {
+			return true;
+		}
+
+		let i;
+		let len;
+
+		for (i = 0, len = createDebug.skips.length; i < len; i++) {
+			if (createDebug.skips[i].test(name)) {
+				return false;
+			}
+		}
+
+		for (i = 0, len = createDebug.names.length; i < len; i++) {
+			if (createDebug.names[i].test(name)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	* Convert regexp to namespace
+	*
+	* @param {RegExp} regxep
+	* @return {String} namespace
+	* @api private
+	*/
+	function toNamespace(regexp) {
+		return regexp.toString()
+			.substring(2, regexp.toString().length - 2)
+			.replace(/\.\*\?$/, '*');
+	}
+
+	/**
+	* Coerce `val`.
+	*
+	* @param {Mixed} val
+	* @return {Mixed}
+	* @api private
+	*/
+	function coerce(val) {
+		if (val instanceof Error) {
+			return val.stack || val.message;
+		}
+		return val;
+	}
+
+	createDebug.enable(createDebug.load());
+
+	return createDebug;
+}
+
+module.exports = setup;
+
+
+/***/ }),
+
 /***/ "./node_modules/engine.io-client/lib/globalThis.browser.js":
 /*!*****************************************************************!*\
   !*** ./node_modules/engine.io-client/lib/globalThis.browser.js ***!
@@ -9109,8 +9835,8 @@ module.exports.parser = __webpack_require__(/*! engine.io-parser */ "./node_modu
  */
 
 var transports = __webpack_require__(/*! ./transports/index */ "./node_modules/engine.io-client/lib/transports/index.js");
-var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/engine.io-client/node_modules/debug/src/browser.js")('engine.io-client:socket');
+var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/engine.io-client/node_modules/component-emitter/index.js");
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('engine.io-client:socket');
 var index = __webpack_require__(/*! indexof */ "./node_modules/indexof/index.js");
 var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.io-parser/lib/browser.js");
 var parseuri = __webpack_require__(/*! parseuri */ "./node_modules/parseuri/index.js");
@@ -9868,7 +10594,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
  */
 
 var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.io-parser/lib/browser.js");
-var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
+var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/engine.io-client/node_modules/component-emitter/index.js");
 
 /**
  * Module exports.
@@ -10348,9 +11074,9 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 
 var XMLHttpRequest = __webpack_require__(/*! xmlhttprequest-ssl */ "./node_modules/engine.io-client/lib/xmlhttprequest.js");
 var Polling = __webpack_require__(/*! ./polling */ "./node_modules/engine.io-client/lib/transports/polling.js");
-var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
+var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/engine.io-client/node_modules/component-emitter/index.js");
 var inherit = __webpack_require__(/*! component-inherit */ "./node_modules/component-inherit/index.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/engine.io-client/node_modules/debug/src/browser.js")('engine.io-client:polling-xhr');
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('engine.io-client:polling-xhr');
 var globalThis = __webpack_require__(/*! ../globalThis */ "./node_modules/engine.io-client/lib/globalThis.browser.js");
 
 /**
@@ -10778,7 +11504,7 @@ var parseqs = __webpack_require__(/*! parseqs */ "./node_modules/parseqs/index.j
 var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.io-parser/lib/browser.js");
 var inherit = __webpack_require__(/*! component-inherit */ "./node_modules/component-inherit/index.js");
 var yeast = __webpack_require__(/*! yeast */ "./node_modules/yeast/index.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/engine.io-client/node_modules/debug/src/browser.js")('engine.io-client:polling');
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('engine.io-client:polling');
 
 /**
  * Module exports.
@@ -11034,7 +11760,7 @@ var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.
 var parseqs = __webpack_require__(/*! parseqs */ "./node_modules/parseqs/index.js");
 var inherit = __webpack_require__(/*! component-inherit */ "./node_modules/component-inherit/index.js");
 var yeast = __webpack_require__(/*! yeast */ "./node_modules/yeast/index.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/engine.io-client/node_modules/debug/src/browser.js")('engine.io-client:websocket');
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('engine.io-client:websocket');
 
 var BrowserWebSocket, NodeWebSocket;
 
@@ -11378,14 +12104,189 @@ module.exports = function (opts) {
 
 /***/ }),
 
-/***/ "./node_modules/engine.io-client/node_modules/debug/src/browser.js":
-/*!*************************************************************************!*\
-  !*** ./node_modules/engine.io-client/node_modules/debug/src/browser.js ***!
-  \*************************************************************************/
+/***/ "./node_modules/engine.io-client/node_modules/component-emitter/index.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/engine.io-client/node_modules/component-emitter/index.js ***!
+  \*******************************************************************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/home/thomas/dev/QuestionMaster/QuestionMaster/node_modules/engine.io-client/node_modules/debug/src/browser.js'");
+
+/**
+ * Expose `Emitter`.
+ */
+
+if (true) {
+  module.exports = Emitter;
+}
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
+    .push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  function on() {
+    this.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks['$' + event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks['$' + event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+
+  // Remove event specific arrays for event types that no
+  // one is subscribed for to avoid memory leak.
+  if (callbacks.length === 0) {
+    delete this._callbacks['$' + event];
+  }
+
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
+
+  var args = new Array(arguments.length - 1)
+    , callbacks = this._callbacks['$' + event];
+
+  for (var i = 1; i < arguments.length; i++) {
+    args[i - 1] = arguments[i];
+  }
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks['$' + event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
+
 
 /***/ }),
 
@@ -23387,1474 +24288,6 @@ if ( typeof noGlobal === "undefined" ) {
 
 return jQuery;
 } );
-
-
-/***/ }),
-
-/***/ "./node_modules/laravel-echo/dist/echo.js":
-/*!************************************************!*\
-  !*** ./node_modules/laravel-echo/dist/echo.js ***!
-  \************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) _setPrototypeOf(subClass, superClass);
-}
-
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
-}
-
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-
-  return _setPrototypeOf(o, p);
-}
-
-function _isNativeReflectConstruct() {
-  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-  if (Reflect.construct.sham) return false;
-  if (typeof Proxy === "function") return true;
-
-  try {
-    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return self;
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (call && (typeof call === "object" || typeof call === "function")) {
-    return call;
-  }
-
-  return _assertThisInitialized(self);
-}
-
-function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct();
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
-var Connector = /*#__PURE__*/function () {
-  /**
-   * Create a new class instance.
-   */
-  function Connector(options) {
-    _classCallCheck(this, Connector);
-
-    /**
-     * Default connector options.
-     */
-    this._defaultOptions = {
-      auth: {
-        headers: {}
-      },
-      authEndpoint: '/broadcasting/auth',
-      broadcaster: 'pusher',
-      csrfToken: null,
-      host: null,
-      key: null,
-      namespace: 'App.Events'
-    };
-    this.setOptions(options);
-    this.connect();
-  }
-  /**
-   * Merge the custom options with the defaults.
-   */
-
-
-  _createClass(Connector, [{
-    key: "setOptions",
-    value: function setOptions(options) {
-      this.options = _extends(this._defaultOptions, options);
-
-      if (this.csrfToken()) {
-        this.options.auth.headers['X-CSRF-TOKEN'] = this.csrfToken();
-      }
-
-      return options;
-    }
-    /**
-     * Extract the CSRF token from the page.
-     */
-
-  }, {
-    key: "csrfToken",
-    value: function csrfToken() {
-      var selector;
-
-      if (typeof window !== 'undefined' && window['Laravel'] && window['Laravel'].csrfToken) {
-        return window['Laravel'].csrfToken;
-      } else if (this.options.csrfToken) {
-        return this.options.csrfToken;
-      } else if (typeof document !== 'undefined' && typeof document.querySelector === 'function' && (selector = document.querySelector('meta[name="csrf-token"]'))) {
-        return selector.getAttribute('content');
-      }
-
-      return null;
-    }
-  }]);
-
-  return Connector;
-}();
-
-/**
- * This class represents a basic channel.
- */
-var Channel = /*#__PURE__*/function () {
-  function Channel() {
-    _classCallCheck(this, Channel);
-  }
-
-  _createClass(Channel, [{
-    key: "listenForWhisper",
-
-    /**
-     * Listen for a whisper event on the channel instance.
-     */
-    value: function listenForWhisper(event, callback) {
-      return this.listen('.client-' + event, callback);
-    }
-    /**
-     * Listen for an event on the channel instance.
-     */
-
-  }, {
-    key: "notification",
-    value: function notification(callback) {
-      return this.listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', callback);
-    }
-    /**
-     * Stop listening for a whispser event on the channel instance.
-     */
-
-  }, {
-    key: "stopListeningForWhisper",
-    value: function stopListeningForWhisper(event) {
-      return this.stopListening('.client-' + event);
-    }
-  }]);
-
-  return Channel;
-}();
-
-/**
- * Event name formatter
- */
-var EventFormatter = /*#__PURE__*/function () {
-  /**
-   * Create a new class instance.
-   */
-  function EventFormatter(namespace) {
-    _classCallCheck(this, EventFormatter);
-
-    this.setNamespace(namespace);
-  }
-  /**
-   * Format the given event name.
-   */
-
-
-  _createClass(EventFormatter, [{
-    key: "format",
-    value: function format(event) {
-      if (event.charAt(0) === '.' || event.charAt(0) === '\\') {
-        return event.substr(1);
-      } else if (this.namespace) {
-        event = this.namespace + '.' + event;
-      }
-
-      return event.replace(/\./g, '\\');
-    }
-    /**
-     * Set the event namespace.
-     */
-
-  }, {
-    key: "setNamespace",
-    value: function setNamespace(value) {
-      this.namespace = value;
-    }
-  }]);
-
-  return EventFormatter;
-}();
-
-/**
- * This class represents a Pusher channel.
- */
-
-var PusherChannel = /*#__PURE__*/function (_Channel) {
-  _inherits(PusherChannel, _Channel);
-
-  var _super = _createSuper(PusherChannel);
-
-  /**
-   * Create a new class instance.
-   */
-  function PusherChannel(pusher, name, options) {
-    var _this;
-
-    _classCallCheck(this, PusherChannel);
-
-    _this = _super.call(this);
-    _this.name = name;
-    _this.pusher = pusher;
-    _this.options = options;
-    _this.eventFormatter = new EventFormatter(_this.options.namespace);
-
-    _this.subscribe();
-
-    return _this;
-  }
-  /**
-   * Subscribe to a Pusher channel.
-   */
-
-
-  _createClass(PusherChannel, [{
-    key: "subscribe",
-    value: function subscribe() {
-      this.subscription = this.pusher.subscribe(this.name);
-    }
-    /**
-     * Unsubscribe from a Pusher channel.
-     */
-
-  }, {
-    key: "unsubscribe",
-    value: function unsubscribe() {
-      this.pusher.unsubscribe(this.name);
-    }
-    /**
-     * Listen for an event on the channel instance.
-     */
-
-  }, {
-    key: "listen",
-    value: function listen(event, callback) {
-      this.on(this.eventFormatter.format(event), callback);
-      return this;
-    }
-    /**
-     * Stop listening for an event on the channel instance.
-     */
-
-  }, {
-    key: "stopListening",
-    value: function stopListening(event) {
-      this.subscription.unbind(this.eventFormatter.format(event));
-      return this;
-    }
-    /**
-     * Bind a channel to an event.
-     */
-
-  }, {
-    key: "on",
-    value: function on(event, callback) {
-      this.subscription.bind(event, callback);
-      return this;
-    }
-  }]);
-
-  return PusherChannel;
-}(Channel);
-
-/**
- * This class represents a Pusher private channel.
- */
-
-var PusherPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
-  _inherits(PusherPrivateChannel, _PusherChannel);
-
-  var _super = _createSuper(PusherPrivateChannel);
-
-  function PusherPrivateChannel() {
-    _classCallCheck(this, PusherPrivateChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(PusherPrivateChannel, [{
-    key: "whisper",
-
-    /**
-     * Trigger client event on the channel.
-     */
-    value: function whisper(eventName, data) {
-      this.pusher.channels.channels[this.name].trigger("client-".concat(eventName), data);
-      return this;
-    }
-  }]);
-
-  return PusherPrivateChannel;
-}(PusherChannel);
-
-/**
- * This class represents a Pusher private channel.
- */
-
-var PusherEncryptedPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
-  _inherits(PusherEncryptedPrivateChannel, _PusherChannel);
-
-  var _super = _createSuper(PusherEncryptedPrivateChannel);
-
-  function PusherEncryptedPrivateChannel() {
-    _classCallCheck(this, PusherEncryptedPrivateChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(PusherEncryptedPrivateChannel, [{
-    key: "whisper",
-
-    /**
-     * Trigger client event on the channel.
-     */
-    value: function whisper(eventName, data) {
-      this.pusher.channels.channels[this.name].trigger("client-".concat(eventName), data);
-      return this;
-    }
-  }]);
-
-  return PusherEncryptedPrivateChannel;
-}(PusherChannel);
-
-/**
- * This class represents a Pusher presence channel.
- */
-
-var PusherPresenceChannel = /*#__PURE__*/function (_PusherChannel) {
-  _inherits(PusherPresenceChannel, _PusherChannel);
-
-  var _super = _createSuper(PusherPresenceChannel);
-
-  function PusherPresenceChannel() {
-    _classCallCheck(this, PusherPresenceChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(PusherPresenceChannel, [{
-    key: "here",
-
-    /**
-     * Register a callback to be called anytime the member list changes.
-     */
-    value: function here(callback) {
-      this.on('pusher:subscription_succeeded', function (data) {
-        callback(Object.keys(data.members).map(function (k) {
-          return data.members[k];
-        }));
-      });
-      return this;
-    }
-    /**
-     * Listen for someone joining the channel.
-     */
-
-  }, {
-    key: "joining",
-    value: function joining(callback) {
-      this.on('pusher:member_added', function (member) {
-        callback(member.info);
-      });
-      return this;
-    }
-    /**
-     * Listen for someone leaving the channel.
-     */
-
-  }, {
-    key: "leaving",
-    value: function leaving(callback) {
-      this.on('pusher:member_removed', function (member) {
-        callback(member.info);
-      });
-      return this;
-    }
-    /**
-     * Trigger client event on the channel.
-     */
-
-  }, {
-    key: "whisper",
-    value: function whisper(eventName, data) {
-      this.pusher.channels.channels[this.name].trigger("client-".concat(eventName), data);
-      return this;
-    }
-  }]);
-
-  return PusherPresenceChannel;
-}(PusherChannel);
-
-/**
- * This class represents a Socket.io channel.
- */
-
-var SocketIoChannel = /*#__PURE__*/function (_Channel) {
-  _inherits(SocketIoChannel, _Channel);
-
-  var _super = _createSuper(SocketIoChannel);
-
-  /**
-   * Create a new class instance.
-   */
-  function SocketIoChannel(socket, name, options) {
-    var _this;
-
-    _classCallCheck(this, SocketIoChannel);
-
-    _this = _super.call(this);
-    /**
-     * The event callbacks applied to the channel.
-     */
-
-    _this.events = {};
-    _this.name = name;
-    _this.socket = socket;
-    _this.options = options;
-    _this.eventFormatter = new EventFormatter(_this.options.namespace);
-
-    _this.subscribe();
-
-    _this.configureReconnector();
-
-    return _this;
-  }
-  /**
-   * Subscribe to a Socket.io channel.
-   */
-
-
-  _createClass(SocketIoChannel, [{
-    key: "subscribe",
-    value: function subscribe() {
-      this.socket.emit('subscribe', {
-        channel: this.name,
-        auth: this.options.auth || {}
-      });
-    }
-    /**
-     * Unsubscribe from channel and ubind event callbacks.
-     */
-
-  }, {
-    key: "unsubscribe",
-    value: function unsubscribe() {
-      this.unbind();
-      this.socket.emit('unsubscribe', {
-        channel: this.name,
-        auth: this.options.auth || {}
-      });
-    }
-    /**
-     * Listen for an event on the channel instance.
-     */
-
-  }, {
-    key: "listen",
-    value: function listen(event, callback) {
-      this.on(this.eventFormatter.format(event), callback);
-      return this;
-    }
-    /**
-     * Stop listening for an event on the channel instance.
-     */
-
-  }, {
-    key: "stopListening",
-    value: function stopListening(event) {
-      var name = this.eventFormatter.format(event);
-      this.socket.removeListener(name);
-      delete this.events[name];
-      return this;
-    }
-    /**
-     * Bind the channel's socket to an event and store the callback.
-     */
-
-  }, {
-    key: "on",
-    value: function on(event, callback) {
-      var _this2 = this;
-
-      var listener = function listener(channel, data) {
-        if (_this2.name == channel) {
-          callback(data);
-        }
-      };
-
-      this.socket.on(event, listener);
-      this.bind(event, listener);
-    }
-    /**
-     * Attach a 'reconnect' listener and bind the event.
-     */
-
-  }, {
-    key: "configureReconnector",
-    value: function configureReconnector() {
-      var _this3 = this;
-
-      var listener = function listener() {
-        _this3.subscribe();
-      };
-
-      this.socket.on('reconnect', listener);
-      this.bind('reconnect', listener);
-    }
-    /**
-     * Bind the channel's socket to an event and store the callback.
-     */
-
-  }, {
-    key: "bind",
-    value: function bind(event, callback) {
-      this.events[event] = this.events[event] || [];
-      this.events[event].push(callback);
-    }
-    /**
-     * Unbind the channel's socket from all stored event callbacks.
-     */
-
-  }, {
-    key: "unbind",
-    value: function unbind() {
-      var _this4 = this;
-
-      Object.keys(this.events).forEach(function (event) {
-        _this4.events[event].forEach(function (callback) {
-          _this4.socket.removeListener(event, callback);
-        });
-
-        delete _this4.events[event];
-      });
-    }
-  }]);
-
-  return SocketIoChannel;
-}(Channel);
-
-/**
- * This class represents a Socket.io presence channel.
- */
-
-var SocketIoPrivateChannel = /*#__PURE__*/function (_SocketIoChannel) {
-  _inherits(SocketIoPrivateChannel, _SocketIoChannel);
-
-  var _super = _createSuper(SocketIoPrivateChannel);
-
-  function SocketIoPrivateChannel() {
-    _classCallCheck(this, SocketIoPrivateChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(SocketIoPrivateChannel, [{
-    key: "whisper",
-
-    /**
-     * Trigger client event on the channel.
-     */
-    value: function whisper(eventName, data) {
-      this.socket.emit('client event', {
-        channel: this.name,
-        event: "client-".concat(eventName),
-        data: data
-      });
-      return this;
-    }
-  }]);
-
-  return SocketIoPrivateChannel;
-}(SocketIoChannel);
-
-/**
- * This class represents a Socket.io presence channel.
- */
-
-var SocketIoPresenceChannel = /*#__PURE__*/function (_SocketIoPrivateChann) {
-  _inherits(SocketIoPresenceChannel, _SocketIoPrivateChann);
-
-  var _super = _createSuper(SocketIoPresenceChannel);
-
-  function SocketIoPresenceChannel() {
-    _classCallCheck(this, SocketIoPresenceChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(SocketIoPresenceChannel, [{
-    key: "here",
-
-    /**
-     * Register a callback to be called anytime the member list changes.
-     */
-    value: function here(callback) {
-      this.on('presence:subscribed', function (members) {
-        callback(members.map(function (m) {
-          return m.user_info;
-        }));
-      });
-      return this;
-    }
-    /**
-     * Listen for someone joining the channel.
-     */
-
-  }, {
-    key: "joining",
-    value: function joining(callback) {
-      this.on('presence:joining', function (member) {
-        return callback(member.user_info);
-      });
-      return this;
-    }
-    /**
-     * Listen for someone leaving the channel.
-     */
-
-  }, {
-    key: "leaving",
-    value: function leaving(callback) {
-      this.on('presence:leaving', function (member) {
-        return callback(member.user_info);
-      });
-      return this;
-    }
-  }]);
-
-  return SocketIoPresenceChannel;
-}(SocketIoPrivateChannel);
-
-/**
- * This class represents a null channel.
- */
-
-var NullChannel = /*#__PURE__*/function (_Channel) {
-  _inherits(NullChannel, _Channel);
-
-  var _super = _createSuper(NullChannel);
-
-  function NullChannel() {
-    _classCallCheck(this, NullChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(NullChannel, [{
-    key: "subscribe",
-
-    /**
-     * Subscribe to a channel.
-     */
-    value: function subscribe() {} //
-
-    /**
-     * Unsubscribe from a channel.
-     */
-
-  }, {
-    key: "unsubscribe",
-    value: function unsubscribe() {} //
-
-    /**
-     * Listen for an event on the channel instance.
-     */
-
-  }, {
-    key: "listen",
-    value: function listen(event, callback) {
-      return this;
-    }
-    /**
-     * Stop listening for an event on the channel instance.
-     */
-
-  }, {
-    key: "stopListening",
-    value: function stopListening(event) {
-      return this;
-    }
-    /**
-     * Bind a channel to an event.
-     */
-
-  }, {
-    key: "on",
-    value: function on(event, callback) {
-      return this;
-    }
-  }]);
-
-  return NullChannel;
-}(Channel);
-
-/**
- * This class represents a null private channel.
- */
-
-var NullPrivateChannel = /*#__PURE__*/function (_NullChannel) {
-  _inherits(NullPrivateChannel, _NullChannel);
-
-  var _super = _createSuper(NullPrivateChannel);
-
-  function NullPrivateChannel() {
-    _classCallCheck(this, NullPrivateChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(NullPrivateChannel, [{
-    key: "whisper",
-
-    /**
-     * Trigger client event on the channel.
-     */
-    value: function whisper(eventName, data) {
-      return this;
-    }
-  }]);
-
-  return NullPrivateChannel;
-}(NullChannel);
-
-/**
- * This class represents a null presence channel.
- */
-
-var NullPresenceChannel = /*#__PURE__*/function (_NullChannel) {
-  _inherits(NullPresenceChannel, _NullChannel);
-
-  var _super = _createSuper(NullPresenceChannel);
-
-  function NullPresenceChannel() {
-    _classCallCheck(this, NullPresenceChannel);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(NullPresenceChannel, [{
-    key: "here",
-
-    /**
-     * Register a callback to be called anytime the member list changes.
-     */
-    value: function here(callback) {
-      return this;
-    }
-    /**
-     * Listen for someone joining the channel.
-     */
-
-  }, {
-    key: "joining",
-    value: function joining(callback) {
-      return this;
-    }
-    /**
-     * Listen for someone leaving the channel.
-     */
-
-  }, {
-    key: "leaving",
-    value: function leaving(callback) {
-      return this;
-    }
-    /**
-     * Trigger client event on the channel.
-     */
-
-  }, {
-    key: "whisper",
-    value: function whisper(eventName, data) {
-      return this;
-    }
-  }]);
-
-  return NullPresenceChannel;
-}(NullChannel);
-
-/**
- * This class creates a connector to Pusher.
- */
-
-var PusherConnector = /*#__PURE__*/function (_Connector) {
-  _inherits(PusherConnector, _Connector);
-
-  var _super = _createSuper(PusherConnector);
-
-  function PusherConnector() {
-    var _this;
-
-    _classCallCheck(this, PusherConnector);
-
-    _this = _super.apply(this, arguments);
-    /**
-     * All of the subscribed channel names.
-     */
-
-    _this.channels = {};
-    return _this;
-  }
-  /**
-   * Create a fresh Pusher connection.
-   */
-
-
-  _createClass(PusherConnector, [{
-    key: "connect",
-    value: function connect() {
-      if (typeof this.options.client !== 'undefined') {
-        this.pusher = this.options.client;
-      } else {
-        this.pusher = new Pusher(this.options.key, this.options);
-      }
-    }
-    /**
-     * Listen for an event on a channel instance.
-     */
-
-  }, {
-    key: "listen",
-    value: function listen(name, event, callback) {
-      return this.channel(name).listen(event, callback);
-    }
-    /**
-     * Get a channel instance by name.
-     */
-
-  }, {
-    key: "channel",
-    value: function channel(name) {
-      if (!this.channels[name]) {
-        this.channels[name] = new PusherChannel(this.pusher, name, this.options);
-      }
-
-      return this.channels[name];
-    }
-    /**
-     * Get a private channel instance by name.
-     */
-
-  }, {
-    key: "privateChannel",
-    value: function privateChannel(name) {
-      if (!this.channels['private-' + name]) {
-        this.channels['private-' + name] = new PusherPrivateChannel(this.pusher, 'private-' + name, this.options);
-      }
-
-      return this.channels['private-' + name];
-    }
-    /**
-     * Get a private encrypted channel instance by name.
-     */
-
-  }, {
-    key: "encryptedPrivateChannel",
-    value: function encryptedPrivateChannel(name) {
-      if (!this.channels['private-encrypted-' + name]) {
-        this.channels['private-encrypted-' + name] = new PusherEncryptedPrivateChannel(this.pusher, 'private-encrypted-' + name, this.options);
-      }
-
-      return this.channels['private-encrypted-' + name];
-    }
-    /**
-     * Get a presence channel instance by name.
-     */
-
-  }, {
-    key: "presenceChannel",
-    value: function presenceChannel(name) {
-      if (!this.channels['presence-' + name]) {
-        this.channels['presence-' + name] = new PusherPresenceChannel(this.pusher, 'presence-' + name, this.options);
-      }
-
-      return this.channels['presence-' + name];
-    }
-    /**
-     * Leave the given channel, as well as its private and presence variants.
-     */
-
-  }, {
-    key: "leave",
-    value: function leave(name) {
-      var _this2 = this;
-
-      var channels = [name, 'private-' + name, 'presence-' + name];
-      channels.forEach(function (name, index) {
-        _this2.leaveChannel(name);
-      });
-    }
-    /**
-     * Leave the given channel.
-     */
-
-  }, {
-    key: "leaveChannel",
-    value: function leaveChannel(name) {
-      if (this.channels[name]) {
-        this.channels[name].unsubscribe();
-        delete this.channels[name];
-      }
-    }
-    /**
-     * Get the socket ID for the connection.
-     */
-
-  }, {
-    key: "socketId",
-    value: function socketId() {
-      return this.pusher.connection.socket_id;
-    }
-    /**
-     * Disconnect Pusher connection.
-     */
-
-  }, {
-    key: "disconnect",
-    value: function disconnect() {
-      this.pusher.disconnect();
-    }
-  }]);
-
-  return PusherConnector;
-}(Connector);
-
-/**
- * This class creates a connnector to a Socket.io server.
- */
-
-var SocketIoConnector = /*#__PURE__*/function (_Connector) {
-  _inherits(SocketIoConnector, _Connector);
-
-  var _super = _createSuper(SocketIoConnector);
-
-  function SocketIoConnector() {
-    var _this;
-
-    _classCallCheck(this, SocketIoConnector);
-
-    _this = _super.apply(this, arguments);
-    /**
-     * All of the subscribed channel names.
-     */
-
-    _this.channels = {};
-    return _this;
-  }
-  /**
-   * Create a fresh Socket.io connection.
-   */
-
-
-  _createClass(SocketIoConnector, [{
-    key: "connect",
-    value: function connect() {
-      var io = this.getSocketIO();
-      this.socket = io(this.options.host, this.options);
-      return this.socket;
-    }
-    /**
-     * Get socket.io module from global scope or options.
-     */
-
-  }, {
-    key: "getSocketIO",
-    value: function getSocketIO() {
-      if (typeof this.options.client !== 'undefined') {
-        return this.options.client;
-      }
-
-      if (typeof io !== 'undefined') {
-        return io;
-      }
-
-      throw new Error('Socket.io client not found. Should be globally available or passed via options.client');
-    }
-    /**
-     * Listen for an event on a channel instance.
-     */
-
-  }, {
-    key: "listen",
-    value: function listen(name, event, callback) {
-      return this.channel(name).listen(event, callback);
-    }
-    /**
-     * Get a channel instance by name.
-     */
-
-  }, {
-    key: "channel",
-    value: function channel(name) {
-      if (!this.channels[name]) {
-        this.channels[name] = new SocketIoChannel(this.socket, name, this.options);
-      }
-
-      return this.channels[name];
-    }
-    /**
-     * Get a private channel instance by name.
-     */
-
-  }, {
-    key: "privateChannel",
-    value: function privateChannel(name) {
-      if (!this.channels['private-' + name]) {
-        this.channels['private-' + name] = new SocketIoPrivateChannel(this.socket, 'private-' + name, this.options);
-      }
-
-      return this.channels['private-' + name];
-    }
-    /**
-     * Get a presence channel instance by name.
-     */
-
-  }, {
-    key: "presenceChannel",
-    value: function presenceChannel(name) {
-      if (!this.channels['presence-' + name]) {
-        this.channels['presence-' + name] = new SocketIoPresenceChannel(this.socket, 'presence-' + name, this.options);
-      }
-
-      return this.channels['presence-' + name];
-    }
-    /**
-     * Leave the given channel, as well as its private and presence variants.
-     */
-
-  }, {
-    key: "leave",
-    value: function leave(name) {
-      var _this2 = this;
-
-      var channels = [name, 'private-' + name, 'presence-' + name];
-      channels.forEach(function (name) {
-        _this2.leaveChannel(name);
-      });
-    }
-    /**
-     * Leave the given channel.
-     */
-
-  }, {
-    key: "leaveChannel",
-    value: function leaveChannel(name) {
-      if (this.channels[name]) {
-        this.channels[name].unsubscribe();
-        delete this.channels[name];
-      }
-    }
-    /**
-     * Get the socket ID for the connection.
-     */
-
-  }, {
-    key: "socketId",
-    value: function socketId() {
-      return this.socket.id;
-    }
-    /**
-     * Disconnect Socketio connection.
-     */
-
-  }, {
-    key: "disconnect",
-    value: function disconnect() {
-      this.socket.disconnect();
-    }
-  }]);
-
-  return SocketIoConnector;
-}(Connector);
-
-/**
- * This class creates a null connector.
- */
-
-var NullConnector = /*#__PURE__*/function (_Connector) {
-  _inherits(NullConnector, _Connector);
-
-  var _super = _createSuper(NullConnector);
-
-  function NullConnector() {
-    var _this;
-
-    _classCallCheck(this, NullConnector);
-
-    _this = _super.apply(this, arguments);
-    /**
-     * All of the subscribed channel names.
-     */
-
-    _this.channels = {};
-    return _this;
-  }
-  /**
-   * Create a fresh connection.
-   */
-
-
-  _createClass(NullConnector, [{
-    key: "connect",
-    value: function connect() {} //
-
-    /**
-     * Listen for an event on a channel instance.
-     */
-
-  }, {
-    key: "listen",
-    value: function listen(name, event, callback) {
-      return new NullChannel();
-    }
-    /**
-     * Get a channel instance by name.
-     */
-
-  }, {
-    key: "channel",
-    value: function channel(name) {
-      return new NullChannel();
-    }
-    /**
-     * Get a private channel instance by name.
-     */
-
-  }, {
-    key: "privateChannel",
-    value: function privateChannel(name) {
-      return new NullPrivateChannel();
-    }
-    /**
-     * Get a presence channel instance by name.
-     */
-
-  }, {
-    key: "presenceChannel",
-    value: function presenceChannel(name) {
-      return new NullPresenceChannel();
-    }
-    /**
-     * Leave the given channel, as well as its private and presence variants.
-     */
-
-  }, {
-    key: "leave",
-    value: function leave(name) {} //
-
-    /**
-     * Leave the given channel.
-     */
-
-  }, {
-    key: "leaveChannel",
-    value: function leaveChannel(name) {} //
-
-    /**
-     * Get the socket ID for the connection.
-     */
-
-  }, {
-    key: "socketId",
-    value: function socketId() {
-      return 'fake-socket-id';
-    }
-    /**
-     * Disconnect the connection.
-     */
-
-  }, {
-    key: "disconnect",
-    value: function disconnect() {//
-    }
-  }]);
-
-  return NullConnector;
-}(Connector);
-
-/**
- * This class is the primary API for interacting with broadcasting.
- */
-
-var Echo = /*#__PURE__*/function () {
-  /**
-   * Create a new class instance.
-   */
-  function Echo(options) {
-    _classCallCheck(this, Echo);
-
-    this.options = options;
-    this.connect();
-
-    if (!this.options.withoutInterceptors) {
-      this.registerInterceptors();
-    }
-  }
-  /**
-   * Get a channel instance by name.
-   */
-
-
-  _createClass(Echo, [{
-    key: "channel",
-    value: function channel(_channel) {
-      return this.connector.channel(_channel);
-    }
-    /**
-     * Create a new connection.
-     */
-
-  }, {
-    key: "connect",
-    value: function connect() {
-      if (this.options.broadcaster == 'pusher') {
-        this.connector = new PusherConnector(this.options);
-      } else if (this.options.broadcaster == 'socket.io') {
-        this.connector = new SocketIoConnector(this.options);
-      } else if (this.options.broadcaster == 'null') {
-        this.connector = new NullConnector(this.options);
-      } else if (typeof this.options.broadcaster == 'function') {
-        this.connector = new this.options.broadcaster(this.options);
-      }
-    }
-    /**
-     * Disconnect from the Echo server.
-     */
-
-  }, {
-    key: "disconnect",
-    value: function disconnect() {
-      this.connector.disconnect();
-    }
-    /**
-     * Get a presence channel instance by name.
-     */
-
-  }, {
-    key: "join",
-    value: function join(channel) {
-      return this.connector.presenceChannel(channel);
-    }
-    /**
-     * Leave the given channel, as well as its private and presence variants.
-     */
-
-  }, {
-    key: "leave",
-    value: function leave(channel) {
-      this.connector.leave(channel);
-    }
-    /**
-     * Leave the given channel.
-     */
-
-  }, {
-    key: "leaveChannel",
-    value: function leaveChannel(channel) {
-      this.connector.leaveChannel(channel);
-    }
-    /**
-     * Listen for an event on a channel instance.
-     */
-
-  }, {
-    key: "listen",
-    value: function listen(channel, event, callback) {
-      return this.connector.listen(channel, event, callback);
-    }
-    /**
-     * Get a private channel instance by name.
-     */
-
-  }, {
-    key: "private",
-    value: function _private(channel) {
-      return this.connector.privateChannel(channel);
-    }
-    /**
-     * Get a private encrypted channel instance by name.
-     */
-
-  }, {
-    key: "encryptedPrivate",
-    value: function encryptedPrivate(channel) {
-      return this.connector.encryptedPrivateChannel(channel);
-    }
-    /**
-     * Get the Socket ID for the connection.
-     */
-
-  }, {
-    key: "socketId",
-    value: function socketId() {
-      return this.connector.socketId();
-    }
-    /**
-     * Register 3rd party request interceptiors. These are used to automatically
-     * send a connections socket id to a Laravel app with a X-Socket-Id header.
-     */
-
-  }, {
-    key: "registerInterceptors",
-    value: function registerInterceptors() {
-      if (typeof Vue === 'function' && Vue.http) {
-        this.registerVueRequestInterceptor();
-      }
-
-      if (typeof axios === 'function') {
-        this.registerAxiosRequestInterceptor();
-      }
-
-      if (typeof jQuery === 'function') {
-        this.registerjQueryAjaxSetup();
-      }
-    }
-    /**
-     * Register a Vue HTTP interceptor to add the X-Socket-ID header.
-     */
-
-  }, {
-    key: "registerVueRequestInterceptor",
-    value: function registerVueRequestInterceptor() {
-      var _this = this;
-
-      Vue.http.interceptors.push(function (request, next) {
-        if (_this.socketId()) {
-          request.headers.set('X-Socket-ID', _this.socketId());
-        }
-
-        next();
-      });
-    }
-    /**
-     * Register an Axios HTTP interceptor to add the X-Socket-ID header.
-     */
-
-  }, {
-    key: "registerAxiosRequestInterceptor",
-    value: function registerAxiosRequestInterceptor() {
-      var _this2 = this;
-
-      axios.interceptors.request.use(function (config) {
-        if (_this2.socketId()) {
-          config.headers['X-Socket-Id'] = _this2.socketId();
-        }
-
-        return config;
-      });
-    }
-    /**
-     * Register jQuery AjaxPrefilter to add the X-Socket-ID header.
-     */
-
-  }, {
-    key: "registerjQueryAjaxSetup",
-    value: function registerjQueryAjaxSetup() {
-      var _this3 = this;
-
-      if (typeof jQuery.ajax != 'undefined') {
-        jQuery.ajaxPrefilter(function (options, originalOptions, xhr) {
-          if (_this3.socketId()) {
-            xhr.setRequestHeader('X-Socket-Id', _this3.socketId());
-          }
-        });
-      }
-    }
-  }]);
-
-  return Echo;
-}();
-
-/* harmony default export */ __webpack_exports__["default"] = (Echo);
 
 
 /***/ }),
@@ -74599,7 +74032,7 @@ if (false) {} else {
 var url = __webpack_require__(/*! ./url */ "./node_modules/socket.io-client/lib/url.js");
 var parser = __webpack_require__(/*! socket.io-parser */ "./node_modules/socket.io-parser/index.js");
 var Manager = __webpack_require__(/*! ./manager */ "./node_modules/socket.io-client/lib/manager.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/socket.io-client/node_modules/debug/src/browser.js")('socket.io-client');
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('socket.io-client');
 
 /**
  * Module exports.
@@ -74703,11 +74136,11 @@ exports.Socket = __webpack_require__(/*! ./socket */ "./node_modules/socket.io-c
 
 var eio = __webpack_require__(/*! engine.io-client */ "./node_modules/engine.io-client/lib/index.js");
 var Socket = __webpack_require__(/*! ./socket */ "./node_modules/socket.io-client/lib/socket.js");
-var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/socket.io-client/node_modules/component-emitter/index.js");
+var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
 var parser = __webpack_require__(/*! socket.io-parser */ "./node_modules/socket.io-parser/index.js");
 var on = __webpack_require__(/*! ./on */ "./node_modules/socket.io-client/lib/on.js");
 var bind = __webpack_require__(/*! component-bind */ "./node_modules/component-bind/index.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/socket.io-client/node_modules/debug/src/browser.js")('socket.io-client:manager');
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('socket.io-client:manager');
 var indexOf = __webpack_require__(/*! indexof */ "./node_modules/indexof/index.js");
 var Backoff = __webpack_require__(/*! backo2 */ "./node_modules/backo2/index.js");
 
@@ -75321,11 +74754,11 @@ function on (obj, ev, fn) {
  */
 
 var parser = __webpack_require__(/*! socket.io-parser */ "./node_modules/socket.io-parser/index.js");
-var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/socket.io-client/node_modules/component-emitter/index.js");
+var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
 var toArray = __webpack_require__(/*! to-array */ "./node_modules/to-array/index.js");
 var on = __webpack_require__(/*! ./on */ "./node_modules/socket.io-client/lib/on.js");
 var bind = __webpack_require__(/*! component-bind */ "./node_modules/component-bind/index.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/socket.io-client/node_modules/debug/src/browser.js")('socket.io-client:socket');
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('socket.io-client:socket');
 var parseqs = __webpack_require__(/*! parseqs */ "./node_modules/parseqs/index.js");
 var hasBin = __webpack_require__(/*! has-binary2 */ "./node_modules/has-binary2/index.js");
 
@@ -75770,7 +75203,7 @@ Socket.prototype.binary = function (binary) {
  */
 
 var parseuri = __webpack_require__(/*! parseuri */ "./node_modules/parseuri/index.js");
-var debug = __webpack_require__(/*! debug */ "./node_modules/socket.io-client/node_modules/debug/src/browser.js")('socket.io-client:url');
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('socket.io-client:url');
 
 /**
  * Module exports.
@@ -75840,28 +75273,6 @@ function url (uri, loc) {
   return obj;
 }
 
-
-/***/ }),
-
-/***/ "./node_modules/socket.io-client/node_modules/component-emitter/index.js":
-/*!*******************************************************************************!*\
-  !*** ./node_modules/socket.io-client/node_modules/component-emitter/index.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/home/thomas/dev/QuestionMaster/QuestionMaster/node_modules/socket.io-client/node_modules/component-emitter/index.js'");
-
-/***/ }),
-
-/***/ "./node_modules/socket.io-client/node_modules/debug/src/browser.js":
-/*!*************************************************************************!*\
-  !*** ./node_modules/socket.io-client/node_modules/debug/src/browser.js ***!
-  \*************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/home/thomas/dev/QuestionMaster/QuestionMaster/node_modules/socket.io-client/node_modules/debug/src/browser.js'");
 
 /***/ }),
 
@@ -76030,7 +75441,7 @@ exports.removeBlobs = function(data, callback) {
  */
 
 var debug = __webpack_require__(/*! debug */ "./node_modules/socket.io-parser/node_modules/debug/src/browser.js")('socket.io-parser');
-var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/socket.io-parser/node_modules/component-emitter/index.js");
+var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
 var binary = __webpack_require__(/*! ./binary */ "./node_modules/socket.io-parser/binary.js");
 var isArray = __webpack_require__(/*! isarray */ "./node_modules/socket.io-parser/node_modules/isarray/index.js");
 var isBuf = __webpack_require__(/*! ./is-buffer */ "./node_modules/socket.io-parser/is-buffer.js");
@@ -76472,17 +75883,6 @@ function isBuf(obj) {
 }
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
-
-/***/ }),
-
-/***/ "./node_modules/socket.io-parser/node_modules/component-emitter/index.js":
-/*!*******************************************************************************!*\
-  !*** ./node_modules/socket.io-parser/node_modules/component-emitter/index.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/home/thomas/dev/QuestionMaster/QuestionMaster/node_modules/socket.io-parser/node_modules/component-emitter/index.js'");
 
 /***/ }),
 
@@ -77337,13 +76737,13 @@ var AdminView = function AdminView() {
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "row card-body"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "col-sm d-flex align-items-center"
+    className: "p-3 flex-grow-1 d-flex align-items-center"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     style: {
       fontWeight: "900"
     }
   }, "Welcome, Admin")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "col-sm d-flex justify-content-end"
+    className: "p-3 d-flex justify-content-end"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
     type: "button",
     className: "btn btn-primary",
@@ -77423,7 +76823,7 @@ var QuestionCard = function QuestionCard(key) {
         className: "form-group row",
         key: key + i
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
-        className: "col-sm-1 col-form-label d-flex justify-content-end align-items-center"
+        className: "p-2 col-form-label d-flex justify-content-end align-items-center flex-nowrap"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("input", {
         className: "",
         type: "radio",
@@ -77431,7 +76831,7 @@ var QuestionCard = function QuestionCard(key) {
         value: i + 1,
         onChange: onInputChanged
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
-        className: "col-sm-11"
+        className: "flex-grow-1 p-2"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("input", {
         className: "form-control",
         name: "option_" + (i + 1),
@@ -77498,19 +76898,19 @@ var QuestionCard = function QuestionCard(key) {
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     className: "row card-header"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
-    className: "col-sm"
+    className: "p-2 flex-grow-1"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("input", {
     className: "form-control",
     name: "name",
     placeholder: "New Question",
     onChange: onInputChanged
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
-    className: "col-sm d-flex justify-content-end"
+    className: "p-2 d-flex justify-content-end"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("button", {
     type: "submit",
     className: "btn btn-light"
   }, "Post"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
-    className: "card-body"
+    className: "card-body container"
   }, optionRow())), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: {
       height: 16
@@ -77536,9 +76936,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var react_bootstrap_ProgressBar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-bootstrap/ProgressBar */ "./node_modules/react-bootstrap/esm/ProgressBar.js");
-/* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
-/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! socket.io-client */ "./node_modules/socket.io-client/lib/index.js");
-/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(socket_io_client__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! socket.io-client */ "./node_modules/socket.io-client/lib/index.js");
+/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(socket_io_client__WEBPACK_IMPORTED_MODULE_3__);
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -77555,11 +76968,11 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-
-var DURATION = 15 * 1000;
+var DURATION = 10 * 1000;
 var STEP = 100;
 var DISPLAY_QUESTION = 10;
 var DISPLAY_ANSWER = 20;
+var socket;
 
 var UserView = function UserView() {
   var _useState = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(""),
@@ -77587,28 +77000,19 @@ var UserView = function UserView() {
       selectedOption = _useState10[0],
       setSelectedOption = _useState10[1];
 
-  var _useState11 = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]),
-      _useState12 = _slicedToArray(_useState11, 2),
-      calcOptionStyle = _useState12[0],
-      setCalcOptionStyle = _useState12[1];
-
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
-    var echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_3__["default"]({
-      host: 'http://thomas-ubuntu.local:6001',
-      broadcaster: 'socket.io',
-      client: socket_io_client__WEBPACK_IMPORTED_MODULE_4___default.a
-    });
-    echo.channel('channel-question.1').listen('QuestionCreated', function (ev) {
-      setMessage(ev);
+    socket = socket_io_client__WEBPACK_IMPORTED_MODULE_3___default()('http://thomas-ubuntu.local:3000');
+    socket.on("channel-question.1:App\\Events\\QuestionCreated", function (message) {
+      setMessage(message);
+      console.log(message);
 
-      if ((ev === null || ev === void 0 ? void 0 : ev.answer) == undefined) {
+      if ((message === null || message === void 0 ? void 0 : message.answer) == undefined) {
         setTriggerCounter(true);
+        setSelectedOption(0);
         setDisplayMode(DISPLAY_QUESTION);
       } else {
-        setDisplayMode(DISPLAY_QUESTION);
+        setDisplayMode(DISPLAY_ANSWER);
       }
-
-      console.log(ev);
     });
   }, []);
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
@@ -77663,27 +77067,15 @@ var UserView = function UserView() {
     className: "card-header"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, message === null || message === void 0 ? void 0 : message.name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "card-body"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    onClick: function onClick() {
-      return handleOptionClick(1);
-    },
-    style: styles.clickable_option
-  }, message === null || message === void 0 ? void 0 : message.option_1), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    onClick: function onClick() {
-      return handleOptionClick(2);
-    },
-    style: styles.clickable_option
-  }, message === null || message === void 0 ? void 0 : message.option_2), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    onClick: function onClick() {
-      return handleOptionClick(3);
-    },
-    style: styles.clickable_option
-  }, message === null || message === void 0 ? void 0 : message.option_3), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    onClick: function onClick() {
-      return handleOptionClick(4);
-    },
-    style: styles.clickable_option
-  }, message === null || message === void 0 ? void 0 : message.option_4), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, message === null || message === void 0 ? void 0 : message.answer)))));
+  }, _toConsumableArray(Array(4)).map(function (x, i) {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      onClick: function onClick() {
+        return handleOptionClick(i + 1);
+      },
+      style: _objectSpread(_objectSpread(_objectSpread(_objectSpread(_objectSpread({}, styles.clickable_option), selectedOption == i + 1 && styles.selected_option), (message === null || message === void 0 ? void 0 : message.answer) && selectedOption == i + 1 && selectedOption == (message === null || message === void 0 ? void 0 : message.answer) && styles.correctAnswer), (message === null || message === void 0 ? void 0 : message.answer) && selectedOption == i + 1 && selectedOption != (message === null || message === void 0 ? void 0 : message.answer) && styles.wrongAnswer), (message === null || message === void 0 ? void 0 : message.answer) && selectedOption != (message === null || message === void 0 ? void 0 : message.answer) && (message === null || message === void 0 ? void 0 : message.answer) == i + 1 && styles.correctAnswer),
+      key: "option_" + (i + 1)
+    }, message === null || message === void 0 ? void 0 : message["option_" + (i + 1)]);
+  })))));
 };
 
 var styles = {
@@ -77691,14 +77083,24 @@ var styles = {
     margin: 8,
     padding: 8,
     paddingLeft: 16,
-    borderColor: "#555",
+    borderColor: "#d6d8db",
     borderWidth: 1,
     borderRadius: 16,
     borderStyle: "solid"
   },
   selected_option: {
-    backgroundColor: "#9e9e9e",
-    color: "#000"
+    backgroundColor: "#e2e3e5",
+    color: "#383d41"
+  },
+  correctAnswer: {
+    backgroundColor: "#d4edda",
+    borderColor: "#c3e6cb",
+    color: "#155724"
+  },
+  wrongAnswer: {
+    backgroundColor: "#f8d7da",
+    borderColor: "#f5c6cb",
+    color: "#721c24"
   }
 };
 /* harmony default export */ __webpack_exports__["default"] = (UserView);

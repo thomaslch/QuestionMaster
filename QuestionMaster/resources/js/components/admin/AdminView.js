@@ -16,10 +16,10 @@ const AdminView = () => {
     <>
       <div className="card">
         <div className="row card-body">
-          <div className="col-sm d-flex align-items-center">
+          <div className="p-3 flex-grow-1 d-flex align-items-center">
             <div style={{ fontWeight: "900" }}>Welcome, Admin</div>
           </div>
-          <div className="col-sm d-flex justify-content-end" >
+          <div className="p-3 d-flex justify-content-end" >
             <button type="button" className="btn btn-primary" onClick={newQuestions}>
               New Question
             </button>

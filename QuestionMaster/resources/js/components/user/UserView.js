@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
-import Echo from 'laravel-echo';
 import socketio from 'socket.io-client';
 
-const DURATION = 15 * 1000;
+const DURATION = 10 * 1000;
 const STEP = 100;
 const DISPLAY_QUESTION = 10;
 const DISPLAY_ANSWER = 20;
+
+var socket;
 
 const UserView = () => {
   const [message, setMessage] = useState("");
@@ -16,26 +17,20 @@ const UserView = () => {
   const [triggerCounter, setTriggerCounter] = useState(false);
   const [displayMode, setDisplayMode] = useState(DISPLAY_QUESTION);
   const [selectedOption, setSelectedOption] = useState(0);
-  const [calcOptionStyle, setCalcOptionStyle] = useState([]);
 
   useEffect(() => {
-    const echo = new Echo({
-      host: 'http://thomas-ubuntu.local:6001',
-      broadcaster: 'socket.io',
-      client: socketio
+    socket = socketio('http://thomas-ubuntu.local:3000');
+    socket.on("channel-question.1:App\\Events\\QuestionCreated", function (message) {
+      setMessage(message)
+      console.log(message);
+      if (message?.answer == undefined) {
+        setTriggerCounter(true);
+        setSelectedOption(0);
+        setDisplayMode(DISPLAY_QUESTION);
+      } else {
+        setDisplayMode(DISPLAY_ANSWER);
+      }
     });
-    echo
-      .channel('channel-question.1')
-      .listen('QuestionCreated', ev => {
-        setMessage(ev);
-        if(ev?.answer == undefined){
-          setTriggerCounter(true);
-          setDisplayMode(DISPLAY_QUESTION);
-        }else{
-          setDisplayMode(DISPLAY_QUESTION);
-        }
-        console.log(ev);
-      });
   }, [])
 
 
@@ -63,11 +58,11 @@ const UserView = () => {
   }, [triggerCounter])
 
   const handleOptionClick = (option) => {
-    if(displayMode == DISPLAY_QUESTION){
+    if (displayMode == DISPLAY_QUESTION) {
       setSelectedOption(option);
     }
-    
   }
+
 
   return (
     <>
@@ -87,11 +82,21 @@ const UserView = () => {
               <div>{message?.name}</div>
             </div>
             <div className="card-body">
-              <div onClick={() => handleOptionClick(1)} style={styles.clickable_option}>{message?.option_1}</div>
-              <div onClick={() => handleOptionClick(2)} style={styles.clickable_option}>{message?.option_2}</div>
-              <div onClick={() => handleOptionClick(3)} style={styles.clickable_option}>{message?.option_3}</div>
-              <div onClick={() => handleOptionClick(4)} style={styles.clickable_option}>{message?.option_4}</div>
-              <div>{message?.answer}</div>
+              {[...Array(4)].map((x, i) => (
+                <div
+                  onClick={() => handleOptionClick(i + 1)}
+                  style={{
+                    ...styles.clickable_option, 
+                    ...selectedOption==(i+1) && styles.selected_option,
+                    ...message?.answer && selectedOption==(i+1) && selectedOption==message?.answer && styles.correctAnswer,
+                    ...message?.answer && selectedOption==(i+1) && selectedOption!=message?.answer && styles.wrongAnswer,
+                    ...message?.answer && selectedOption!=message?.answer && message?.answer==(i+1) && styles.correctAnswer,
+                  }}
+                  key={"option_" + (i + 1)}
+                >
+                  {message?.["option_" + (i + 1)]}
+                </div>
+              ))}
             </div>
           </div>
         </>
@@ -105,15 +110,26 @@ const styles = {
     margin: 8,
     padding: 8,
     paddingLeft: 16,
-    borderColor: "#555",
+    borderColor: "#d6d8db",
     borderWidth: 1,
     borderRadius: 16,
     borderStyle: "solid",
   },
   selected_option: {
-    backgroundColor: "#9e9e9e",
-    color: "#000"
-  }
+    backgroundColor: "#e2e3e5",
+    color: "#383d41"
+  },
+  correctAnswer: {
+    backgroundColor: "#d4edda",
+    borderColor: "#c3e6cb",
+    color: "#155724",
+  },
+  wrongAnswer: {
+    backgroundColor: "#f8d7da",
+    borderColor: "#f5c6cb",
+    color: "#721c24",
+  },
+
 }
 
 export default UserView;

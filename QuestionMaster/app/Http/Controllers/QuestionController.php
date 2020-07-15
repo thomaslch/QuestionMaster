@@ -37,7 +37,7 @@ class QuestionController extends Controller
 
         response()->json($question, 201);
 
-        sleep(15);
+        sleep(10);
 
         // broadcast question and ans
         broadcast(new \App\Events\QuestionCreated($question, true));

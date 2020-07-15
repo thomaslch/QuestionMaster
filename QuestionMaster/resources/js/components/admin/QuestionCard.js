@@ -11,10 +11,10 @@ const QuestionCard = (key) => {
     for (var i = 0; i < 4; i++) {
       options.push(
         <div className="form-group row" key={key+i}>
-          <div className="col-sm-1 col-form-label d-flex justify-content-end align-items-center">
+          <div className="p-2 col-form-label d-flex justify-content-end align-items-center flex-nowrap">
             <input className="" type="radio" name="answer" value={i+1} onChange={onInputChanged} />
           </div>
-          <div className="col-sm-11">
+          <div className="flex-grow-1 p-2">
             <input className="form-control" name={"option_"+(i+1)} placeholder={"Option "+(i+1)} onChange={onInputChanged} />
           </div>
         </div>
@@ -53,15 +53,15 @@ const QuestionCard = (key) => {
       <div className="card" style={{ overflow: "hidden" }}>
 
         <div className="row card-header">
-          <div className="col-sm">
+          <div className="p-2 flex-grow-1">
             <input className="form-control" name="name" placeholder="New Question" onChange={onInputChanged} />
           </div>
-          <div className="col-sm d-flex justify-content-end">
+          <div className="p-2 d-flex justify-content-end">
             <button type="submit" className="btn btn-light">Post</button>
           </div>
         </div>
 
-        <div className="card-body">{optionRow()}</div>
+        <div className="card-body container">{optionRow()}</div>
 
 
       </div>
