@@ -5,17 +5,19 @@ import GLOBALS from '../../api/global';
 
 const QuestionCard = (key) => {
   const [questionInput, setQuestionInput] = useState({});
+  const [isQuestionSent, setIsQuestionSent] = useState(false);
 
+  // render option row
   const optionRow = () => {
     var options = [];
     for (var i = 0; i < 4; i++) {
       options.push(
-        <div className="form-group row" key={key+i}>
+        <div className="form-group row" key={key + i}>
           <div className="p-2 col-form-label d-flex justify-content-end align-items-center flex-nowrap">
-            <input className="" type="radio" name="answer" value={i+1} onChange={onInputChanged} />
+            <input className="" type="radio" name="answer" value={i + 1} onChange={onInputChanged} />
           </div>
           <div className="flex-grow-1 p-2">
-            <input className="form-control" name={"option_"+(i+1)} placeholder={"Option "+(i+1)} onChange={onInputChanged} />
+            <input className="form-control" name={"option_" + (i + 1)} placeholder={"Option " + (i + 1)} onChange={onInputChanged} />
           </div>
         </div>
       );
@@ -23,29 +25,35 @@ const QuestionCard = (key) => {
     return options;
   };
 
+  // submit the question to laravel
   const formSubmit = async event => {
     event.preventDefault();
+    setIsQuestionSent(true);
     const formData = new FormData();
     Object.keys(questionInput).forEach(key => {
       formData.append(key, questionInput[key]);
     });
-    await fetch(GLOBALS.url+'/api/question', {
+    await fetch(GLOBALS.url + '/api/question', {
       method: 'POST',
       headers: {
         Accept: 'application/json'
       },
       body: formData
     })
-    .then(res => {
-      if(!res.ok) throw Error(res.statusText);
-      return res;
-    })
-    .then(res => console.log(res))
-    .catch(err => alert(err));
+      .then(res => {
+        if (!res.ok) throw Error(res.statusText);
+        return res;
+      })
+      .then(res => console.log(res))
+      .catch(err => {
+        setIsQuestionSent(false)
+        alert(err);
+      });
   }
 
+  // update question and option inputs
   const onInputChanged = event => {
-    setQuestionInput({...questionInput, [event.target.name]: event.target.value});
+    setQuestionInput({ ...questionInput, [event.target.name]: event.target.value });
   }
 
   return (
@@ -57,7 +65,10 @@ const QuestionCard = (key) => {
             <input className="form-control" name="name" placeholder="New Question" onChange={onInputChanged} />
           </div>
           <div className="p-2 d-flex justify-content-end">
-            <button type="submit" className="btn btn-light">Post</button>
+            {!isQuestionSent
+            ? <button type="submit" className="btn btn-light">Post</button>
+            : <button className="btn btn-success" disabled>Sent</button>
+            }
           </div>
         </div>
 

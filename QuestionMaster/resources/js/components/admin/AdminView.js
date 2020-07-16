@@ -6,6 +6,7 @@ import QuestionCard from './QuestionCard';
 const AdminView = () => {
   const [questions, setQuestions] = useState([]);
 
+  // append QuestionCard element to a list when button is clicked
   const newQuestions = () => {
     var now = new Date();
 

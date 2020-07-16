@@ -20,6 +20,8 @@ const UserView = () => {
   const [selectedOption, setSelectedOption] = useState(0);
 
   useEffect(() => {
+    // connect to socket server and wait for questions
+    // once a question arrives, put it in state and trigger counter
     socket = socketio('http://thomas-ubuntu.local:3000', {transports: ['websocket'], upgrade: false});
     socket.on("channel-question.1:App\\Events\\QuestionCreated", function (message) {
       setMessage(message)
@@ -37,7 +39,7 @@ const UserView = () => {
 
   }, [])
 
-
+  // handle counter events
   useEffect(() => {
     var interval;
     if (triggerCounter == true) {
@@ -61,6 +63,7 @@ const UserView = () => {
     return () => clearInterval(interval);
   }, [triggerCounter])
 
+  // handle options onclick
   const handleOptionClick = (option) => {
     if (displayMode == DISPLAY_QUESTION) {
       setSelectedOption(option);
@@ -69,6 +72,7 @@ const UserView = () => {
         question_id: message?.id,
         answer: option
       }
+      // send the selected choice to server
       socket.emit("channel-answer.1", JSON.stringify(response));
     }
   }
@@ -78,6 +82,7 @@ const UserView = () => {
     <>
       {message == ""
         ?
+        // show waiting message until the first question arrives
         <div className="d-flex justify-content-center align-items-center">
           <div className="spinner-grow m-2" role="status">
             <span className="sr-only">Loading...</span>
@@ -85,6 +90,7 @@ const UserView = () => {
           <div className="m-2">Stay tuned for questions!</div>
         </div>
         :
+        // main card body
         <>
           <ProgressBar now={counter} max={DURATION} />
           <div className="card">
@@ -92,6 +98,7 @@ const UserView = () => {
               <div>{message?.name}</div>
             </div>
             <div className="card-body">
+              {/* render options div */}
               {[...Array(4)].map((x, i) => (
                 <div
                   onClick={() => handleOptionClick(i + 1)}

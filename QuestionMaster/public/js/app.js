@@ -76723,7 +76723,8 @@ var AdminView = function AdminView() {
   var _useState = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]),
       _useState2 = _slicedToArray(_useState, 2),
       questions = _useState2[0],
-      setQuestions = _useState2[1];
+      setQuestions = _useState2[1]; // append QuestionCard element to a list when button is clicked
+
 
   var newQuestions = function newQuestions() {
     var now = new Date();
@@ -76815,6 +76816,12 @@ var QuestionCard = function QuestionCard(key) {
       questionInput = _useState2[0],
       setQuestionInput = _useState2[1];
 
+  var _useState3 = Object(react__WEBPACK_IMPORTED_MODULE_1__["useState"])(false),
+      _useState4 = _slicedToArray(_useState3, 2),
+      isQuestionSent = _useState4[0],
+      setIsQuestionSent = _useState4[1]; // render option row
+
+
   var optionRow = function optionRow() {
     var options = [];
 
@@ -76841,7 +76848,8 @@ var QuestionCard = function QuestionCard(key) {
     }
 
     return options;
-  };
+  }; // submit the question to laravel
+
 
   var formSubmit = /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(event) {
@@ -76851,11 +76859,12 @@ var QuestionCard = function QuestionCard(key) {
           switch (_context.prev = _context.next) {
             case 0:
               event.preventDefault();
+              setIsQuestionSent(true);
               formData = new FormData();
               Object.keys(questionInput).forEach(function (key) {
                 formData.append(key, questionInput[key]);
               });
-              _context.next = 5;
+              _context.next = 6;
               return fetch(_api_global__WEBPACK_IMPORTED_MODULE_3__["default"].url + '/api/question', {
                 method: 'POST',
                 headers: {
@@ -76868,10 +76877,11 @@ var QuestionCard = function QuestionCard(key) {
               }).then(function (res) {
                 return console.log(res);
               })["catch"](function (err) {
-                return alert(err);
+                setIsQuestionSent(false);
+                alert(err);
               });
 
-            case 5:
+            case 6:
             case "end":
               return _context.stop();
           }
@@ -76882,7 +76892,8 @@ var QuestionCard = function QuestionCard(key) {
     return function formSubmit(_x) {
       return _ref.apply(this, arguments);
     };
-  }();
+  }(); // update question and option inputs
+
 
   var onInputChanged = function onInputChanged(event) {
     setQuestionInput(_objectSpread(_objectSpread({}, questionInput), {}, _defineProperty({}, event.target.name, event.target.value)));
@@ -76906,10 +76917,13 @@ var QuestionCard = function QuestionCard(key) {
     onChange: onInputChanged
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     className: "p-2 d-flex justify-content-end"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("button", {
+  }, !isQuestionSent ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("button", {
     type: "submit",
     className: "btn btn-light"
-  }, "Post"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+  }, "Post") : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("button", {
+    className: "btn btn-success",
+    disabled: true
+  }, "Sent"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     className: "card-body container"
   }, optionRow())), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: {
@@ -77004,6 +77018,8 @@ var UserView = function UserView() {
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
     var _document$getElementB, _document$getElementB2;
 
+    // connect to socket server and wait for questions
+    // once a question arrives, put it in state and trigger counter
     socket = socket_io_client__WEBPACK_IMPORTED_MODULE_3___default()('http://thomas-ubuntu.local:3000', {
       transports: ['websocket'],
       upgrade: false
@@ -77021,7 +77037,8 @@ var UserView = function UserView() {
     });
     token = (_document$getElementB = document.getElementById('jwt_token')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.innerHTML;
     userID = (_document$getElementB2 = document.getElementById('user_id')) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.innerHTML;
-  }, []);
+  }, []); // handle counter events
+
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
     var interval;
 
@@ -77048,7 +77065,7 @@ var UserView = function UserView() {
     return function () {
       return clearInterval(interval);
     };
-  }, [triggerCounter]);
+  }, [triggerCounter]); // handle options onclick
 
   var handleOptionClick = function handleOptionClick(option) {
     if (displayMode == DISPLAY_QUESTION) {
@@ -77057,12 +77074,16 @@ var UserView = function UserView() {
         token: token,
         question_id: message === null || message === void 0 ? void 0 : message.id,
         answer: option
-      };
+      }; // send the selected choice to server
+
       socket.emit("channel-answer.1", JSON.stringify(response));
     }
   };
 
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, message == "" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, message == "" ?
+  /*#__PURE__*/
+  // show waiting message until the first question arrives
+  react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "d-flex justify-content-center align-items-center"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "spinner-grow m-2",
@@ -77071,7 +77092,10 @@ var UserView = function UserView() {
     className: "sr-only"
   }, "Loading...")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "m-2"
-  }, "Stay tuned for questions!")) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_bootstrap_ProgressBar__WEBPACK_IMPORTED_MODULE_2__["default"], {
+  }, "Stay tuned for questions!")) :
+  /*#__PURE__*/
+  // main card body
+  react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_bootstrap_ProgressBar__WEBPACK_IMPORTED_MODULE_2__["default"], {
     now: counter,
     max: DURATION
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
