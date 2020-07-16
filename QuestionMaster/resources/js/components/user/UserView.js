@@ -10,6 +10,7 @@ const DISPLAY_QUESTION = 10;
 const DISPLAY_ANSWER = 20;
 
 var socket;
+var userID, token;
 
 const UserView = () => {
   const [message, setMessage] = useState("");
@@ -19,10 +20,10 @@ const UserView = () => {
   const [selectedOption, setSelectedOption] = useState(0);
 
   useEffect(() => {
-    socket = socketio('http://thomas-ubuntu.local:3000');
+    socket = socketio('http://thomas-ubuntu.local:3000', {transports: ['websocket'], upgrade: false});
     socket.on("channel-question.1:App\\Events\\QuestionCreated", function (message) {
       setMessage(message)
-      console.log(message);
+      // console.log(message);
       if (message?.answer == undefined) {
         setTriggerCounter(true);
         setSelectedOption(0);
@@ -31,6 +32,9 @@ const UserView = () => {
         setDisplayMode(DISPLAY_ANSWER);
       }
     });
+    token = document.getElementById('jwt_token')?.innerHTML;
+    userID = document.getElementById('user_id')?.innerHTML;
+
   }, [])
 
 
@@ -60,6 +64,12 @@ const UserView = () => {
   const handleOptionClick = (option) => {
     if (displayMode == DISPLAY_QUESTION) {
       setSelectedOption(option);
+      var response = {
+        token: token,
+        question_id: message?.id,
+        answer: option
+      }
+      socket.emit("channel-answer.1", JSON.stringify(response));
     }
   }
 
@@ -86,11 +96,11 @@ const UserView = () => {
                 <div
                   onClick={() => handleOptionClick(i + 1)}
                   style={{
-                    ...styles.clickable_option, 
-                    ...selectedOption==(i+1) && styles.selected_option,
-                    ...message?.answer && selectedOption==(i+1) && selectedOption==message?.answer && styles.correctAnswer,
-                    ...message?.answer && selectedOption==(i+1) && selectedOption!=message?.answer && styles.wrongAnswer,
-                    ...message?.answer && selectedOption!=message?.answer && message?.answer==(i+1) && styles.correctAnswer,
+                    ...styles.clickable_option,
+                    ...selectedOption == (i + 1) && styles.selected_option,
+                    ...message?.answer && selectedOption == (i + 1) && selectedOption == message?.answer && styles.correct_answer,
+                    ...message?.answer && selectedOption == (i + 1) && selectedOption != message?.answer && styles.wrong_answer,
+                    ...message?.answer && selectedOption != message?.answer && message?.answer == (i + 1) && styles.correct_answer,
                   }}
                   key={"option_" + (i + 1)}
                 >
@@ -114,17 +124,18 @@ const styles = {
     borderWidth: 1,
     borderRadius: 16,
     borderStyle: "solid",
+    cursor: "pointer",
   },
   selected_option: {
     backgroundColor: "#e2e3e5",
     color: "#383d41"
   },
-  correctAnswer: {
+  correct_answer: {
     backgroundColor: "#d4edda",
     borderColor: "#c3e6cb",
     color: "#155724",
   },
-  wrongAnswer: {
+  wrong_answer: {
     backgroundColor: "#f8d7da",
     borderColor: "#f5c6cb",
     color: "#721c24",

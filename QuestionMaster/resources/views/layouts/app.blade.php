@@ -66,6 +66,9 @@
                                     </form>
                                 </div>
                             </li>
+                            {{-- append jwt token and user_id if logged in --}}
+                            <div id="jwt_token" style="display: none">{{auth('api')->login(auth()->user())}}</div>
+                            <div id="user_id" style="display: none">{{auth()->user()->id}}</div>
                         @endguest
                     </ul>
                 </div>
