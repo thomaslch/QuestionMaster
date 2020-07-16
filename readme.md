@@ -2,6 +2,11 @@
 
 This project aims to implement a real-time questionnaire game using sockets. 
 
+## Stack used
+* React and Laravel Blade as front-end
+* Laravel as question handler and main backend
+* NodeJS and socket.io as websocket service provider
+
 ## Installation
 
 1. Clone the repository
