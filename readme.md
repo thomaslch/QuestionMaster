@@ -2,10 +2,21 @@
 
 This project aims to implement a real-time questionnaire game using sockets. 
 
+![Demo](demo/demo.gif)
+
+## Features
+
+* Admin can create questions on the fly and broadcast them to players
+* Players will be given 10 seconds to answer the questions
+* After the 10 seconds, the game will reveal the answer and whether the player get it right or wrong
+* The player's response will be saved to database
+* The answer-reveal screen will stay until the next question arrives
+
 ## Stack used
 * React and Laravel Blade as front-end
 * Laravel as question handler and main backend
 * NodeJS and socket.io as websocket service provider
+* JWT as authentication
 
 ## Installation
 
