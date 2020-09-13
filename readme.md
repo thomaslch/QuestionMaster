@@ -8,7 +8,7 @@ This project aims to implement a real-time questionnaire game using sockets.
 
 * Admin can create questions on the fly and broadcast them to players
 * Players will be given 10 seconds to answer the questions
-* After the 10 seconds, the game will reveal the answer and whether the player get it right or wrong
+* After the 10 seconds, player's input will be disabled and the game will reveal the answer and whether the player get it right or wrong
 * The player's response will be saved to database
 * The answer-reveal screen will stay until the next question arrives
 
